@@ -95,8 +95,9 @@ jQuery.fn.selectToUISlider = function(settings){
 				//control original select menu
 				var currSelect = jQuery('#' + thisHandle.attr('id').split('handle_')[1]);
 				currSelect.find('option').eq(ui.value).attr('selected', 'selected');
-				
-				console.log("slider is moved?");
+		},
+		change: function(e, ui) {
+			/* please bind a event */
 		},
 		values: (function(){
 			var values = [];
@@ -239,7 +240,9 @@ jQuery.fn.selectToUISlider = function(settings){
 		sliderComponent.find('.ui-slider-tooltip .ttContent').eq(0).text( ttText(values) );
 	}
 	
-	return this;
+	
+	return sliderComponent;
+	//return this;
 }
 
 

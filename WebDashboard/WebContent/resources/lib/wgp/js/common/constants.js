@@ -23,8 +23,6 @@ wgp.constants.CHANGE_TYPE = {};
 wgp.constants.CHANGE_TYPE.ADD = "add";
 wgp.constants.CHANGE_TYPE.DELETE = "delete";
 wgp.constants.CHANGE_TYPE.UPDATE = "update";
-wgp.constants.CHANGE_TYPE.ANIMATE = "animate";
-
 
 wgp.constants.STATE = {};
 wgp.constants.STATE.NORMAL = "normal";
@@ -39,7 +37,3 @@ wgp.constants.STATE_COLOR[wgp.constants.STATE.ERROR]="#FF0000";
 wgp.constants.IS_CHANGE = {};
 wgp.constants.IS_CHANGE.SIZE = {"pointX":true, "pointY":true, "width":true, "height":true};
 wgp.constants.IS_CHANGE.STATE = {"state":true};
-
-
-
-
