@@ -34,10 +34,6 @@
 	<script type="text/javascript"
 			src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseParentView.js">
 	</script>
-	<%-- 
-	<link rel="Stylesheet" 
-		  href="<%=request.getContextPath() %>/resources/css/hbase/annotation.css" 
-		  type="text/css" /> --%>
 
 </head>
 
@@ -78,18 +74,8 @@
 		type="text/javaScript"></script>
 
 	<script>
-		
-	
-		//hbase view
-		/*
-		var hbaseView = new HbaseView({
-			id	: "hbase_area"
-		});
-		appView.addViews([hbaseView]);
-		*/
 		setInterval(function(){hbaseMock()}, 1000);
 		
-	
 		var treeView = new wgp.TreeView({
 			id : "tree_area",
 			targetId : "contents_area"
@@ -173,35 +159,6 @@
 		setInterval(graphDataInterval("Memory", 18), 1000);
 		setInterval(graphDataInterval("CPU", 25), 1000);
 		
-		
-		//define original graph function
-		/*
-		var graphDataStatic = function(windowId) {
-			var y = 25;
-			function innerFunction() {
-				var x = new Date();
-				var sin = Math.sin(y * Math.PI / 180);
-				var cos = Math.cos(y * Math.PI / 180);
-
-				var data = {
-					type : wgp.constants.CHANGE_TYPE.ADD,
-					data : [ x, sin, cos ]
-					//data : [ 0, 1, 1 ]
-				}
-				var sendData = [ {
-					windowId : windowId,
-					data : [ data ]
-				} ]
-
-				appView.notifyEvent(sendData);
-
-			}
-			;
-			return innerFunction;
-		}
-		setInterval(graphDataInterval("HBase"), 0);
-		*/
-		
 		var property1 = {
 			type : wgp.constants.CHANGE_TYPE.ADD,
 			state : wgp.constants.STATE.NORMAL,
@@ -261,9 +218,6 @@
 		};
 
 		setInterval(mapDataInterval("contents_area_tab_0"), 1000);
-		
-
-		
 		
 	
 	</script>

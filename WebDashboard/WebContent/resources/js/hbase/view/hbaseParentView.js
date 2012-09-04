@@ -39,27 +39,9 @@ var HbaseParentView = wgp.AbstractView.extend({
 		this.collection = new HbaseParentCollection();
 		//this.registerCollectionEvent();
 		
-		// add div tag and css of
-		// 'information area'
 		var id = halook.hbase.parent.id;
-		$("#" + this.$el.attr("id")).append(
-				'<div id="' + id.informationArea + '"></div>');
-		$('#' + id.informationArea).css(
-				halook.hbase.parent.css.informationArea);
 		
-		// add div tag and css of
-		// 'contents in information area'
-		$('#' + id.informationArea).append(
-				'<div id="' + id.legendArea + '"></div>');
-		$('#' + id.legendArea).css(
-				halook.hbase.parent.css.legendArea);
-		$('#' + id.informationArea).append(
-				'<div id="' + id.annotationLegendArea + '"></div>');
-		$('#' + id.annotationLegendArea).css(
-				halook.hbase.parent.css.annotationLegendArea);
-		
-		// add div tag and css of
-		// 'dual slider area', and make dual slider
+		// dual slider area (add div and css, and make slider)
 		$("#" + this.$el.attr("id")).append(
 				'<div id="' + id.dualSliderArea + '"></div>');
 		$('#' + id.dualSliderArea).css(
@@ -67,8 +49,25 @@ var HbaseParentView = wgp.AbstractView.extend({
 		var dualSliderView = new DualSliderView(
 				{id: id.dualSliderArea, rootView:this});
 		
-		// add div tag and css of
-		// 'graph area', and make graph
+		// information area (add div and css)
+		$("#" + this.$el.attr("id")).append(
+				'<div id="' + id.informationArea + '"></div>');
+		$('#' + id.informationArea).css(
+				halook.hbase.parent.css.informationArea);
+		
+		// graph legend area (add div and css)
+		$('#' + id.informationArea).append(
+				'<div id="' + id.legendArea + '"></div>');
+		$('#' + id.legendArea).css(
+				halook.hbase.parent.css.legendArea);
+		
+		// annotation legend area (add div and css)
+		$('#' + id.informationArea).append(
+				'<div id="' + id.annotationLegendArea + '"></div>');
+		$('#' + id.annotationLegendArea).css(
+				halook.hbase.parent.css.annotationLegendArea);
+		
+		// graph area (add div and css, and make graph)
 		$("#" + this.$el.attr("id")).append(
 				'<div id="' + id.graphArea + '"></div>');
 		$('#' + id.graphArea).css(
@@ -78,9 +77,6 @@ var HbaseParentView = wgp.AbstractView.extend({
 		
 		// associate with the slider and graph
 		this.setEventOnDualSlider(dualSliderView, hbaseView);
-		
-		// add legend of annotation  
-		//this.setAnnotationText();
 	},
 	render : function(){
 		console.log('call render');
@@ -104,70 +100,3 @@ var HbaseParentView = wgp.AbstractView.extend({
 	
 });
 
-
-
-/////////////////////////////////////////////////////////
-//                      Comment                        //
-/////////////////////////////////////////////////////////
-/*
-$('#annotationLegendArea').empty()
-
-// multiple
-$('#annotationLegendArea').append(
-		'<p class="graphAnnotationMultiple"><strong>Multiple events</strong><br> were occurred</p>');
-$(".graphAnnotationMultiple").css({
-	color : "red",
-	backgroundColor: "black",
-	border: "0px black solid"	
-});
-
-// minor compaction
-$('#annotationLegendArea').append(
-		'<p class="graphAnnotationCompaction_minor"><strong>Minor Compaction</strong><br> was occurred</p>');
-$(".graphAnnotationCompaction_minor").css({
-	color : "black",
-	backgroundColor: "#00E7F2",
-	border: "0px #00E7F2 solid"	
-});
-
-// major compaction
-$('#annotationLegendArea').append(
-		'<p class="graphAnnotationCompaction_major"><strong>Major Compaction</strong><br> was occurred</p>');
-$(".graphAnnotationCompaction_major").css({
-	color : "black",
-	backgroundColor: "#0079F2",
-	border: "0px #0079F2 solid"	
-});
-
-// split
-$('#annotationLegendArea').append(
-		'<p class="graphAnnotationSplit"><strong>Split</strong><br> was occurred</p>');
-$(".graphAnnotationSplit").css({
-	color : "black",
-	backgroundColor: "#36F200",
-	border: "0px #36F200 solid"	
-});
-*/
-
-
-/*
-$('#annotationLegendArea').empty()
-		
-		// multiple
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationMultiple"><strong>Multiple events</strong><br> were occurred</p>');
-		
-		// minor compaction
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationCompaction_minor"><strong>Minor Compaction</strong><br> was occurred</p>');
-		
-		// major compaction
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationCompaction_major"><strong>Major Compaction</strong><br> was occurred</p>');
-		
-		// split
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationSplit"><strong>Split</strong><br> was occurred</p>');
-	
-
-*/

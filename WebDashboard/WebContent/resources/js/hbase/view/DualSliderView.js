@@ -78,7 +78,7 @@ var DualSliderView = wgp.AbstractView.extend({
 		this.fromIdName = "valueA";
 		this.toIdName = "valueB";
 		this.sliderComponent = null;
-		this.unit = halook.hbase.dualslider.unit
+		this.unit = halook.hbase.dualslider.unit;
 		
 		// add slider
 		$("#" + this.$el.attr("id")).append(halook.hbase.dualslider.selectHtml);
@@ -119,8 +119,11 @@ var DualSliderView = wgp.AbstractView.extend({
 		return this.sliderComponent;
 	},
 	getFromToAsArray: function(values){
-		// values : .ui-slider values 
-		//    ex) : [4, 6]
+		// values	: .ui-slider values 
+		// 	  		  Ex: [4, 6]
+		// return	: [from, to]
+		//			  from and to are the time which means how long ago from now
+		
 		var from = (24 - values[0]) * this.unit;
 		var to = (24 - values[1]) * this.unit;
 		return [from, to];
