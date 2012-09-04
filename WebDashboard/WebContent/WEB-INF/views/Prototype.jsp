@@ -24,7 +24,7 @@
 		  href="<%=request.getContextPath() %>/resources/css/hbase/ui.slider.extras.css" 
 		  type="text/css" />
 	<script type="text/javascript"
-			src="<%=request.getContextPath() %>/resources/js/hbase/view/DualSliderView.js">
+			src="<%=request.getContextPath() %>/resources/js/hbase/view/dualSliderView.js">
 	</script>
 	
 	<%-- parent view --%>
@@ -34,9 +34,10 @@
 	<script type="text/javascript"
 			src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseParentView.js">
 	</script>
+	<%-- 
 	<link rel="Stylesheet" 
 		  href="<%=request.getContextPath() %>/resources/css/hbase/annotation.css" 
-		  type="text/css" />
+		  type="text/css" /> --%>
 
 </head>
 

@@ -1,10 +1,24 @@
+//
 var halook = {};
 halook.hbase = {};
+
+// view
 halook.hbase.parent = {};
 halook.hbase.graph = {};
 halook.hbase.dualslider = {};
 
+// view id name
+halook.hbase.parent.id = {
+	informationArea		: 'informationArea',
+	legendArea			: 'legendArea',
+	annotationLegendArea: 'annotationLegendArea',
+	dualSliderArea		: 'dualSliderArea',
+	graphArea			: 'graphArea'
+};
+
+// make data set 
 halook.hbase.graph._dataArray = [];
+halook.hbase.graph._dataDelimin = ',';
 
 var data_list = [];
 var time = (new Date()).getTime() - 60 * 60 * 24 * 1000;
@@ -15,12 +29,12 @@ event_list = ["",
               "", 
               "", 
               "", 
-              "Compaction_minor", 
-              "Compaction_minor", 
-              "Compaction_minor",
-              "Compaction_major", 
-              "Split",
-              "Compaction_minor,Split"];
+              "minorCompaction", 
+              "minorCompaction", 
+              "minorCompaction",
+              "majorCompaction", 
+              "split",
+              "minorCompaction,split"];
 
 for(var i=0; i<60*24; i++){
 	time += 60000;

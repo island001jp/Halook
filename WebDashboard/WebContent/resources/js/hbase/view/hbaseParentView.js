@@ -2,13 +2,6 @@
 //               Following is constant                 //
 /////////////////////////////////////////////////////////
 halook.hbase.parent;
-halook.hbase.parent.id = {
-	informationArea		: 'informationArea',
-	legendArea			: 'legendArea',
-	annotationLegendArea: 'annotationLegendArea',
-	dualSliderArea		: 'dualSliderArea',
-	graphArea			: 'graphArea'
-};
 halook.hbase.parent.css = {};
 halook.hbase.parent.css.informationArea = {
 	fontSize	: "14px",
@@ -87,7 +80,7 @@ var HbaseParentView = wgp.AbstractView.extend({
 		this.setEventOnDualSlider(dualSliderView, hbaseView);
 		
 		// add legend of annotation  
-		this.setAnnotationText();
+		//this.setAnnotationText();
 	},
 	render : function(){
 		console.log('call render');
@@ -108,27 +101,6 @@ var HbaseParentView = wgp.AbstractView.extend({
 			targetView.updateDisplaySpan(fromto[0], fromto[1]);
 		});
 	},
-	setAnnotationText:function(){
-		var id = halook.hbase.parent.id;
-		$('#' + id.annotationLegendArea).empty();
-		
-		// multiple
-		$('#' + id.annotationLegendArea).append(
-				'<p class="graphAnnotationMultiple"><strong>Multiple events</strong><br> were occurred</p>');
-		
-		// minor compaction
-		$('#' + id.annotationLegendArea).append(
-				'<p class="graphAnnotationCompaction_minor"><strong>Minor Compaction</strong><br> was occurred</p>');
-		
-		// major compaction
-		$('#' + id.annotationLegendArea).append(
-				'<p class="graphAnnotationCompaction_major"><strong>Major Compaction</strong><br> was occurred</p>');
-		
-		// split
-		$('#' + id.annotationLegendArea).append(
-				'<p class="graphAnnotationSplit"><strong>Split</strong><br> was occurred</p>');
-	
-	}
 	
 });
 
