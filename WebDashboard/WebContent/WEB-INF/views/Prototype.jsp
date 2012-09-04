@@ -1,57 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-<%@ include file="../common/javaScriptInclude.jsp"%>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/model/hbaseModel.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseView.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/view/DualSliderView.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/mock/hbaseMock.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/mock/hbaseData.js">
-</script>
+	<%@ include file="../common/javaScriptInclude.jsp"%>
+	<%-- hbase graph --%>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/mock/hbaseData.js">
+	</script>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/model/hbaseModel.js">
+	</script>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/mock/hbaseMock.js">
+	</script>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseView.js">
+	</script>
+	
+	<%-- dual slider --%>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/common/selectToUISlider.jQuery.js">
+	</script>
+	<link rel="Stylesheet" 
+		  href="<%=request.getContextPath() %>/resources/css/hbase/ui.slider.extras.css" 
+		  type="text/css" />
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/view/DualSliderView.js">
+	</script>
+	
+	<%-- parent view --%>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/model/hbaseParentModel.js">
+	</script>
+	<script type="text/javascript"
+			src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseParentView.js">
+	</script>
+	<link rel="Stylesheet" 
+		  href="<%=request.getContextPath() %>/resources/css/hbase/annotation.css" 
+		  type="text/css" />
 
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/model/hbaseParentModel.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/hbase/view/hbaseParentView.js">
-</script>
-
-
-<%--
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/lib/jQuery/js/jquery-1.7.1.min.js">
-</script>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/lib/jQuery/js/jquery-ui-1.8.19.custom.min.js">
-</script>
---%>
-<script type="text/javascript"
-		src="<%=request.getContextPath() %>/resources/js/common/selectToUISlider.jQuery.js">
-</script>
-
-<%--
-<link rel="Stylesheet" 
-	  href="<%=request.getContextPath() %>/resources/lib/jQuery/css/jquery-ui-1.8.19.custom.css" 
-	  type="text/css" />
---%>
-<link rel="Stylesheet" 
-	  href="<%=request.getContextPath() %>/resources/css/ui.slider.extras.css" 
-	  type="text/css" />
-
-<style type="text/css">
-	.graph_annotation {
-		color: #000000;
-	}
-</style>
 </head>
 
 

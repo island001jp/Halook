@@ -119,8 +119,6 @@ jQuery.fn.selectToUISlider = function(settings){
 		var handleIndex = thisHandle.data('handleNum');
 		thisHandle.parents('.ui-slider:eq(0)').slider("values", handleIndex, thisIndex);
 		
-		console.log("pull down?");
-		
 	});
 	
 
@@ -187,8 +185,6 @@ jQuery.fn.selectToUISlider = function(settings){
 		return (i/(selectOptions.length-1) * 100).toFixed(2)  +'%';
 		
 	}
-	
-
 	
 	
 	//show and hide labels depending on labels pref

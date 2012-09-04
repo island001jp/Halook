@@ -1,3 +1,6 @@
+/////////////////////////////////////////////////////////
+//               Following is constant                 //
+/////////////////////////////////////////////////////////
 wgp.DygraphAttribute = [
     "colors",
     "labels",
@@ -16,53 +19,41 @@ wgp.DygraphAttribute = [
     "drawCallback",
     "dateWindow"
 ];
+halook.hbase.graph;
+halook.hbase.graph.attributes = {
+	//width		: "650",
+	height		: "400",
+	xlabel		: "Time",
+	ylabel		: "Number of region",
+	labels		: ["Time","Number of region", "Amount"],
+	legend		: "always",
+	labelsDiv	: "legendArea",
+	labelsDivWidth			: 100,
+	hideOverlayOnMouseOut	: false,
+	dateWindow	:	null
+};
+halook.hbase.graph.annotation = {};
+halook.hbase.graph.annotation.attributes = {
+		
+};
 
-//var HbaseView = wgp.DygraphElementView.extend({
+/////////////////////////////////////////////////////////
+//                       Class                         //
+/////////////////////////////////////////////////////////
 var HbaseView = wgp.AbstractView.extend({
 	initialize: function(){
-		var instance = this;
 		this.viewtype = wgp.constants.VIEW_TYPE.VIEW;
 		this.collection = new HbaseCollection;
-		//this.registerCollectionEvent();
-		
-		this.width = 650;
-		this.height = 300;
-		//this.graphId = "contents_area_0";
-		this.attributes = {
-			xlabel: 	"Time",
-			ylabel: 	"number of region",
-			labels: 	["time","number of region", "amount"],
-			legend: 	"always",
-			labelsDiv: 	"legendArea",
-			labelsDivWidth: 100,
-            labelsDivStyles: {
-            	'top': 'auto',
-            	'left': '30px',
-            	'backgroundColor': 'rgba(200, 200, 255, 0.75)',
-            	'padding': '4px',
-            	'border': '1px solid black',
-            	'borderRadius': '10px',
-            	'boxShadow': '4px 4px 4px #888'
-            },
-			hideOverlayOnMouseOut: false,
-			zoomCallback: function(){
-				instance.setAnnotationCss();
-			},
-			/*
-			drawCallback: function(){
-				alert("test");
-				instance.setAnnotationCss();
-			},*/
-			dateWindow:	null
-		};
 		this.maxId = 0;
+		//this.registerCollectionEvent();
+		//this.width = 650;
+		//this.height = 300;
+		//this.graphId = "contents_area_0";
 		
-		// test data
-		this.annotationArray = [];
-		dataArray = halook.hbase.dataArray;
-		this.nowtime = null;
+		// set the attributes of the graph
+		this.attributes = halook.hbase.graph.attributes;
 		
-		// 
+		// set the size of this area
 		var realTag = $("#" + this.$el.attr("id"));
         if (this.width == null) {
             this.width = realTag.width();
@@ -75,6 +66,12 @@ var HbaseView = wgp.AbstractView.extend({
         	realTag.height(this.height);
         }
         
+        // initialize the test data
+        this.nowtime = null;
+		this.annotationArray = [];
+		var dataArray = halook.hbase.graph._dataArray;
+		
+		// draw the graph
         if(dataArray && dataArray.length > 0){
         	this.addCollection(dataArray);
             this.render();
@@ -91,8 +88,7 @@ var HbaseView = wgp.AbstractView.extend({
 		var latest = data[data.length-1][0];
 		if(data.length > 60){
 			var earliest = data[data.length-61][0];
-		};
-		this.attributes.dateWindow = [earliest, latest];
+		};this.attributes.dateWindow = [earliest, latest];
 		this.nowtime = latest.getTime();
 		
 		// make graph
@@ -104,7 +100,9 @@ var HbaseView = wgp.AbstractView.extend({
 		
 		// set annotation
 		this.entity.setAnnotations(this.annotationArray);
-		this.setAnnotationCss();
+		/*this.getGraphObject().updateOptions({
+			dateWindow : [earliest, latest]
+		});*/
 		
 		console.log('call render');
 	},
@@ -117,7 +115,6 @@ var HbaseView = wgp.AbstractView.extend({
 		
 		_.each(this.collection.models, function(model,index){
 			//dataArray.push(model.get("data"));
-			
 			var modelData = model.get("data");
 			var array = [];
 			//array.push(modelData);
@@ -154,7 +151,6 @@ var HbaseView = wgp.AbstractView.extend({
 		var instance = this;
 		var data = [];
 		var series = this.attributes.ylabel;
-		
 		_.each(this.collection.models, function(model, index){
 			var modelData = model.get("data");
 			var timestamp = modelData.timestamp;
@@ -168,7 +164,7 @@ var HbaseView = wgp.AbstractView.extend({
 			data.push(tmpArray);
 			
 			// push annotation 
-			if (eventString != ""){
+			if (eventString != ''){
 				var annotationElement = instance._getAnnotationElement(
 																timestamp, 
 																eventString, 
@@ -183,6 +179,7 @@ var HbaseView = wgp.AbstractView.extend({
 		var annotationElement = {};
 		var shortText = null;
 		var text = null;
+		//var tickHeight = 5 + Math.random() * 50;
 		var styleNameSuffix = null;
 		eventNameList = eventString.split(",");
 		
@@ -201,51 +198,13 @@ var HbaseView = wgp.AbstractView.extend({
 		annotationElement.x				= timestamp;
 		annotationElement.shortText		= shortText;
 		annotationElement.text			= text;
+		//annotationElement.tickHeight	= tickHeight;
 		annotationElement.cssClass		= 'graphAnnotation' + styleNameSuffix;
 		
 		return annotationElement
 	},
 	getRegisterId : function(){
 		return this.graphId;
-	},
-	setAnnotationCss:function(){
-		$('#annotationLegendArea').empty()
-		
-		// multiple
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationMultiple"><strong>Multiple events</strong><br> were occurred</p>');
-		$(".graphAnnotationMultiple").css({
-			color : "red",
-			backgroundColor: "black",
-			border: "0px black solid"	
-		});
-		
-		// minor compaction
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationCompaction_minor"><strong>Minor Compaction</strong><br> was occurred</p>');
-		$(".graphAnnotationCompaction_minor").css({
-			color : "black",
-			backgroundColor: "#00E7F2",
-			border: "0px #00E7F2 solid"	
-		});
-		
-		// major compaction
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationCompaction_major"><strong>Major Compaction</strong><br> was occurred</p>');
-		$(".graphAnnotationCompaction_major").css({
-			color : "black",
-			backgroundColor: "#0079F2",
-			border: "0px #0079F2 solid"	
-		});
-		
-		// split
-		$('#annotationLegendArea').append(
-				'<p class="graphAnnotationSplit"><strong>Split</strong><br> was occurred</p>');
-		$(".graphAnnotationSplit").css({
-			color : "black",
-			backgroundColor: "#36F200",
-			border: "0px #36F200 solid"	
-		});
 	},
 	getGraphObject : function(){
 		return this.entity;
@@ -257,8 +216,6 @@ var HbaseView = wgp.AbstractView.extend({
 		this.getGraphObject().updateOptions({
 			dateWindow : [earliest, latest]
 		});
-		
-		this.setAnnotationCss();
 	}
 	
 	

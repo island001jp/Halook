@@ -1,10 +1,12 @@
 var halook = {};
 halook.hbase = {};
-halook.dataArray = null;
-halook.hbase.dataArray = [];
+halook.hbase.parent = {};
+halook.hbase.graph = {};
+halook.hbase.dualslider = {};
+
+halook.hbase.graph._dataArray = [];
 
 var data_list = [];
-//var time = 1346638518210;
 var time = (new Date()).getTime() - 60 * 60 * 24 * 1000;
 var region_number = 2;
 var region_server_number = 2;
@@ -38,10 +40,9 @@ for(var i=0; i<60*24; i++){
 	};
 	output.event = event_list[Math.floor( Math.random() * 10 )];
 	
-	halook.hbase.dataArray.push(output);
+	halook.hbase.graph._dataArray.push(output);
 	//console.log(output);
 	//console.log(new Date(time));
 	//console.log((new Date(time)).getSeconds());
 	
-}
-
+};
