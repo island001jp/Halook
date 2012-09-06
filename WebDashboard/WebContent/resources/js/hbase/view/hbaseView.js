@@ -21,6 +21,7 @@ wgp.DygraphAttribute = [
     "drawCallback",
     "dateWindow"
 ];
+/*
 halook.hbase.graph;
 halook.hbase.graph.attributes = {
 	//width		: "650",
@@ -80,28 +81,37 @@ halook.hbase.graph.eventType = {
 		}
 	}
 };
-
+*/
 
 /////////////////////////////////////////////////////////
 //                       Class                         //
 /////////////////////////////////////////////////////////
 var HbaseView = wgp.AbstractView.extend({
-	initialize: function(){
+	initialize: function(arguments){
 		this.viewtype = wgp.constants.VIEW_TYPE.VIEW;
-		this.collection = new HbaseCollection;
 		this.maxId = 0;
-		//this.registerCollectionEvent();
-		//this.width = 650;
-		//this.height = 300;
-		//this.graphId = "contents_area_0";
+		this.annotationArray = [];
+		this.annotationRichDataArray = [];
+		this.entity = null;
 		
-		// set the attributes of the graph
+		var appView = new wgp.AppView();
+		appView.addView(this, arguments.treeSettings.id);
+		console.log('---- graph start to initialize----');
+		console.log(this.collection);
+		this.nowDate = new Date();
+		appView.getTermData([arguments.treeSettings.id], 
+							new Date(0), this.nowDate);
+		appView.syncData([arguments.treeSettings.id]);
+		//this.registerCollectionEvent();
+		
+		/*
+		// set the attributes of dygraph
+		this.dygraphAttributes = halook.hbase.graph.attributes;
 		var instance = this;
-		this.attributes = halook.hbase.graph.attributes;
-		this.attributes.zoomCallback = function(){
+		this.dygraphAttributes.zoomCallback = function(){
 			instance._setAnnotationCss();
 		};
-		this.attributes.highlightCallback = 
+		this.dygraphAttributes.highlightCallback = 
 			function(event, x, points, row, seriesName){
 			instance._hilightedActionForAnnotation(x);
 		};
@@ -120,18 +130,92 @@ var HbaseView = wgp.AbstractView.extend({
         }
         
         // initialize the test data
-        this.nowtime = null;
-		this.annotationArray = [];
-		var dataArray = halook.hbase.graph._dataArray;
+		//this.annotationArray = [];
+		//var dataArray = halook.hbase.graph._dataArray;
 		
 		// draw the graph
+        
         if(dataArray && dataArray.length > 0){
-        	this.addCollection(dataArray);
+        	this._addCollection(dataArray);
             this.render();
         };
+        */
         
-		console.log('hello, instance: HbaseView');
+		console.log('initialize (graph)');
 	},
+	onAdd : function(element){
+		console.log('call onAdd (graph)');
+		
+		var dataArray = [];
+		/*
+		if(this.collection.length > graphMaxNumber){
+			this.collection.shift(wgp.constants.BACKBONE_EVENT.SILENT);
+		}
+		*/
+		_.each(this.collection.models, function(model,index){
+			
+			var modelData = model.get("data");
+			var timestamp = modelData.timestamp;
+			var region_number = modelData.data.region_number;
+			var eventString = modelData.event;
+			
+			// push data
+			var tmpArray = [];
+			tmpArray.push(new Date(timestamp));
+			tmpArray.push(region_number);
+			dataArray.push(tmpArray);
+		});
+		
+		
+		if(this.entity == null){
+			this.render();
+		}else{
+			this.entity.updateOptions({file: dataArray});
+		};
+		
+	},
+	onChange : function(element){
+		console.log('called changeModel');
+	},
+	onRemove : function(element){
+		console.log('called removeModel');
+	},
+	getTermData : function() {
+		console.log('called getTermData (graph)');
+		console.log(this.collection);
+		
+		// set the attributes of dygraph
+		this.dygraphAttributes = halook.hbase.graph.attributes;
+		var instance = this;
+		this.dygraphAttributes.zoomCallback = function(){
+			instance._setAnnotationCss();
+		};
+		this.dygraphAttributes.highlightCallback = 
+			function(event, x, points, row, seriesName){
+			instance._hilightedActionForAnnotation(x, row);
+			console.log(points, row);
+		};
+		var nowTimeMillisecond = this.nowDate.getTime();
+		this.dygraphAttributes.dateWindow = [nowTimeMillisecond - 60*60*1000, 
+		                                     nowTimeMillisecond];
+		
+		// set the size of this area
+		var realTag = $("#" + this.$el.attr("id"));
+        if (this.width == null) {
+            this.width = realTag.width();
+        }else{
+        	realTag.width(this.width);
+        }
+        if (this.height == null) {
+            this.height = realTag.height();
+        }else{
+        	realTag.height(this.height);
+        }
+        
+        this.render();
+        
+	},
+	/*
 	render : function(){
 		// get data
 		var data = this._getDataAndSetAnnotationData();
@@ -142,8 +226,8 @@ var HbaseView = wgp.AbstractView.extend({
 		if(data.length > 60){
 			var earliest = data[data.length-61][0];
 		};
-		this.attributes.dateWindow = [earliest, latest];
-		this.nowtime = latest.getTime();
+		this.dygraphAttributes.dateWindow = [earliest, latest];
+		this.nowDate = latest.getTime();
 		
 		// make graph
 		this.entity = new Dygraph(
@@ -151,44 +235,38 @@ var HbaseView = wgp.AbstractView.extend({
 			data,
 			this.getAttributes(wgp.DygraphAttribute)
 		);
-		
 		// set annotation
 		this.entity.setAnnotations(this.annotationArray);
 		this._setAnnotationLegend();
 		this._setAnnotationCss();
 		
-		console.log('call render');
-	},
-	onAdd : function(element){
+		console.log('call render (graph)');
+	},*/
+	render : function(){
+		// get data
+		var data = this._getDataAndSetAnnotationData();
 		
-		var dataArray = [];
-		if(this.collection.length > graphMaxNumber){
-			this.collection.shift(wgp.constants.BACKBONE_EVENT.SILENT);
+		// make graph
+		if(this.entity != null){
+			return;
 		}
+		this.entity = new Dygraph(
+				document.getElementById(this.$el.attr("id")),
+				data,
+				//this.getAttributes(wgp.DygraphAttribute)
+				this.dygraphAttributes
+			);
 		
-		_.each(this.collection.models, function(model,index){
-			var modelData = model.get("data");
-			var array = [];
-			array.push(modelData.timestamp);
-			array.push(modelData.data.region_number);
-			dataArray.push(array);
-			
-		});
-		if(this.entity == null){
-			this.render();
-		}else{
-			this.entity.updateOptions({file: dataArray});
-		}
-		
-		console.log('call onAdd');
+		// set annotation
+		this.entity.setAnnotations(this.annotationArray);
+		this._setAnnotationLegend(halook.hbase.parent.id.annotationLegendArea);
+		this._setAnnotationCss();
+		//console.log(this.annotationArray);
+		console.log(this.collection);
+		console.log('call render (graph)');
 	},
-	onChange : function(element){
-		console.log('called changeModel');
-	},
-	onRemove : function(element){
-		console.log('called removeModel');
-	},
-	addCollection:function(dataArray){
+	/*
+	_addCollection : function(dataArray){
 		if(dataArray != null){
 			var instance = this;
 			_.each(dataArray, function(data, index){
@@ -201,11 +279,58 @@ var HbaseView = wgp.AbstractView.extend({
 				instance.maxId++;
 			});
 		}
-	},
+	},*/
 	_getDataAndSetAnnotationData : function(){
 		var instance = this;
 		var data = [];
+		console.log('_getDataAndSetAnnotationData');
+		
 		_.each(this.collection.models, function(model, index){
+			var modelData = model.attributes;
+			var jsonData = $.parseJSON(modelData.measurementValue);
+			
+			
+			// get each value
+			/*
+			var dt = new Date(jsonData.EventTime.replace(/-/g, "/"));
+			var timestamp		= dt;
+			var region_number	= Math.floor(Math.random() * 10) * 
+								  Math.floor(Math.random() * 10)
+			var eventString		= jsonData.EventName;
+			*/
+			var timestamp = parseInt(modelData.measurementTime);
+			var region_number = jsonData.RegionNumber;
+			var eventList = jsonData.EventList;
+			
+			// push data
+			var tmpArray = [];
+			tmpArray.push(new Date(timestamp));
+			tmpArray.push(region_number);
+			data.push(tmpArray);
+			
+			// push annotation 
+			if (eventList.length > 0){
+				var annotationElement = instance._getAnnotationElement(
+												timestamp, 
+												eventList, 
+												instance.dygraphAttributes.labels[1]
+												//"Number of region"
+												);
+				instance.annotationArray.push(annotationElement);
+				instance.annotationRichDataArray.push(eventList);
+				
+			};
+			
+		});
+		
+		return data;
+	},/*
+	_getDataAndSetAnnotationData : function(){
+		var instance = this;
+		var data = [];
+		console.log(this.collection);
+		_.each(this.collection.models, function(model, index){
+			console.log(model.attributes);
 			var modelData = model.get("data");
 			
 			// get each value
@@ -224,7 +349,7 @@ var HbaseView = wgp.AbstractView.extend({
 				var annotationElement = instance._getAnnotationElement(
 												timestamp, 
 												eventString, 
-												instance.attributes.ylabel
+												instance.dygraphAttributes.ylabel
 												//"Number of region"
 												);
 				instance.annotationArray.push(annotationElement);
@@ -232,8 +357,8 @@ var HbaseView = wgp.AbstractView.extend({
 		});
 		
 		return data;
-	},
-	_getAnnotationElement: function(timestamp, eventString, series){
+	},*/
+	_getAnnotationElement: function(timestamp, eventList, series){
 		var instance = this;
 		var annotationElement = {
 				series		: series,
@@ -243,36 +368,27 @@ var HbaseView = wgp.AbstractView.extend({
 				tickHeight	: this._getAnnotationElementPosition(),
 				cssClass	: null,
 				mouseOverHandler : function(ann, point, dg, event){
-					console.log('------------');
-					console.log(ann);
-					console.log(ann.x);
-					console.log(point);
-					console.log(dg);
-					console.log(event);
 					instance._hilightedActionForAnnotation(ann.x);
 				}
 		};
 		
-		// split event String 
-		var delimin = halook.hbase.graph._dataDelimin;
-		eventNameList = eventString.split(delimin);
-		
-		// adjust annotation text and css
 		var eventTypeDict = halook.hbase.graph.eventType;
-		if(eventNameList.length > 1){
+		var listLength = eventList.length;
+		if(listLength > 1){
 			annotationElement.shortText = eventTypeDict.multiple.shortText;
 			annotationElement.text = '';
-			for(var index=0; index<eventNameList.length; index++){
+			for(var index=0; index<listLength; index++){
 				annotationElement.text += 
-					eventTypeDict[eventNameList[index]].text + '<br>\n';
+					eventTypeDict[eventList[index].EventName].text + '<br>\n';
 			};
 			var eventClassName = eventTypeDict.multiple.className;
 		}else{
-			var eventName = eventNameList[0];
+			var eventName = eventList[0].EventName;
 			annotationElement.shortText = eventTypeDict[eventName].shortText;
 			annotationElement.text = eventTypeDict[eventName].text;
 			var eventClassName = eventTypeDict[eventName].className;
 		};
+		
 		annotationElement.cssClass = 
 			halook.hbase.graph.annotation.shortTextClassName + ' ' +
 			eventClassName + ' ' +
@@ -280,9 +396,9 @@ var HbaseView = wgp.AbstractView.extend({
 		
 		return annotationElement
 	},
-	_setAnnotationLegend:function(){
+	_setAnnotationLegend:function(targetId){
 		// initialize the area
-		var targetId = halook.hbase.parent.id.annotationLegendArea;
+		//var targetId = halook.hbase.parent.id.annotationLegendArea;
 		$('#' + targetId).empty();
 		
 		// add legend of all events
@@ -311,7 +427,7 @@ var HbaseView = wgp.AbstractView.extend({
 	},
 	_getAnnotationElementPosition: function(){
 		if(this._standardAnnotationPosition == null){
-			this._standardAnnotationPosition = -1;
+			this._standardAnnotationPosition = 1;
 		};
 		
 		this._standardAnnotationPosition *= 1;
@@ -320,14 +436,14 @@ var HbaseView = wgp.AbstractView.extend({
 		};
 		return -40;
 	},
-	_hilightedActionForAnnotation : function(x){
+	_hilightedActionForAnnotation : function(x, row){
 		var className = halook.hbase.graph.annotation.xValueClassNamePrefix + x;
 		if(this._defaultSizeOfAnnotation == null){
 			this._defaultSizeOfAnnotation = $('.' + className).css('width');
 			this._classNameOfPrevious = className;
 		};
 		
-		// previous
+		// previous hilighted
 		$('.' + this._classNameOfPrevious).css({
 			textAlign	: 'center',
 			width		: this._defaultSizeOfAnnotation,
@@ -345,25 +461,37 @@ var HbaseView = wgp.AbstractView.extend({
 			padding		: '10px',
 			zIndex		: '9999'
 		});
+		/*
+		$('.' + className).append(
+				'<p class="_tmp"><strong>' + 
+				$('.' + className).attr("title") + '</strong></p>' +
+				'<p class="_tmp">' + (new Date(x)) + '</p>'
+				);*/
 		$('.' + className).append(
 				'<p class="_tmp"><strong>' + 
 				$('.' + className).attr("title") + '</strong></p>' +
 				'<p class="_tmp">' + (new Date(x)) + '</p>'
 				);
-		
 		this._classNameOfPrevious = className;
+	},
+	getData:function(){
+		var data = [];
+		_.each(this.collection.models, function(model, index){
+			data.push(model.get("data"));
+		});
+		return data;
 	},
 	getRegisterId : function(){
 		return this.graphId;
-	},
+	},/*
 	getGraphObject : function(){
 		return this.entity;
-	},
-	updateDisplaySpan: function(from, to){
-		var earliest = this.nowtime - from;
-		var latest = this.nowtime - to;
+	},*/
+	updateDisplaySpan: function(fromMillisecond, toMillisecond){
+		var earliest = this.nowDate.getTime() - fromMillisecond;
+		var latest = this.nowDate.getTime() - toMillisecond;
 		
-		this.getGraphObject().updateOptions({
+		this.entity.updateOptions({
 			dateWindow : [earliest, latest]
 		});
 		

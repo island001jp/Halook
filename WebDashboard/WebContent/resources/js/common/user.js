@@ -1,32 +1,10 @@
-
-var memoryGraphViewElement = {
+var graphViewElement = {
 	viewClassName : "wgp.DygraphElementView",
 	viewAttribute : {
-		width: 300,
-		height: 300,
-		graphId: "Memory",
-		attributes : {
-			xlabel: "Time",
-			ylabel: "Memory",
-			labels:["time","PC1","PC2"]
-		}
+		term : 1800,
+		noTermData : false
 	}
 };
-
-var cpuGraphViewElement = {
-	viewClassName : "wgp.DygraphElementView",
-	viewAttribute : {
-		width: 300,
-		height: 300,
-		graphId: "CPU",
-		attributes : {
-			xlabel: "Time",
-			ylabel: "CPU ",
-			labels:["time","PC1","PC2"]
-		}
-	}
-};
-
 
 var mapTabElement = {
 	viewClassName : "wgp.MapView",
@@ -34,44 +12,32 @@ var mapTabElement = {
 };
 
 var graphAreaTabElement = { 
-		viewClassName 	: "wgp.MultiAreaView",
-		rootView		: appView,
-		tabTitle 		: "Graph",
-		collection 		: [memoryGraphViewElement, cpuGraphViewElement]
-	};
+	viewClassName : "wgp.MultiAreaView",
+	tabTitle : "Graph",
+	collection :[graphViewElement]
+};
 
 var tabViewElement = {
 	viewClassName: "wgp.TabView",
-	rootView:appView,
 	collection:[mapTabElement, graphAreaTabElement]
 };
-
-
 
 
 var hbaseGrowthGraphParentView = { 
 		viewClassName	: "HbaseParentView"
 };
-var hbaseGrowthGraphView = { 
-		viewClassName	: "HbaseView"
-};
-var sliderView = { 
-		viewClassName	: "SliderView"
-};
-
-
-
 var hbaseGrowthGraphField = {
 		viewClassName	: "wgp.MultiAreaView",
 		rootView		: appView,
-		//collection		: [sliderView, hbaseGrowthGraphView]
 		collection		: [hbaseGrowthGraphParentView]
-		//collection		: [hbaseGrowthGraphField]
 };
 
-
 wgp.constants.VIEW_SETTINGS = {
-	"default" : graphAreaTabElement,
-	"/graph1/" : tabViewElement,
-	"/hbase/" : hbaseGrowthGraphField
+	"default" : graphViewElement,
+	"/usage/" : tabViewElement,
+	"/hbase/event" : hbaseGrowthGraphParentView,
+	//"/hdfs" : hbaseGrowthGraphField,
+	"/total/" : graphViewElement,
+	"/system/" : graphViewElement,
+	"/user/" : graphViewElement
 };

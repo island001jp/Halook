@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2004-2010 SMG Co., Ltd. All Rights Reserved.
+ * Copyright (c) 2012 Acroquest Technology Co., Ltd. All Rights Reserved.
  * Please read the associated COPYRIGHTS file for more details.
  *
- * THE  SOFTWARE IS  PROVIDED BY  SMG Co., Ltd., WITHOUT  WARRANTY  OF
- * ANY KIND,  EXPRESS  OR IMPLIED,  INCLUDING BUT  NOT LIMITED  TO THE
- * WARRANTIES OF  MERCHANTABILITY,  FITNESS FOR A  PARTICULAR  PURPOSE
+ * THE SOFTWARE IS PROVIDED BY Acroquest Technology Co., Ltd., WITHOUT
+ * WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT.
  * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDER BE LIABLE FOR ANY
  * CLAIM, DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING
@@ -29,6 +29,13 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jp.co.acroquest.endosnipe.common.Constants;
+import jp.co.acroquest.endosnipe.common.jmx.JMXManager;
+import jp.co.acroquest.endosnipe.common.logger.ENdoSnipeLogger;
+import jp.co.acroquest.endosnipe.common.util.ResourceDataUtil;
+import jp.co.acroquest.endosnipe.communicator.entity.MeasurementConstants;
+import jp.co.acroquest.endosnipe.data.dao.MeasurementValueDao;
+import jp.co.acroquest.endosnipe.data.dto.MeasurementValueDto;
 import jp.co.acroquest.endosnipe.web.dashboard.config.MeasurementSetting;
 import jp.co.acroquest.endosnipe.web.dashboard.constants.EventConstants;
 import jp.co.acroquest.endosnipe.web.dashboard.constants.LogMessageCodes;
@@ -41,12 +48,6 @@ import jp.co.acroquest.endosnipe.web.dashboard.manager.EventManager;
 import jp.co.acroquest.endosnipe.web.dashboard.util.EventUtil;
 import jp.co.acroquest.endosnipe.web.dashboard.util.RequestUtil;
 import jp.co.acroquest.endosnipe.web.dashboard.util.ResponseUtil;
-import jp.co.smg.endosnipe.common.jmx.JMXManager;
-import jp.co.smg.endosnipe.common.logger.ENdoSnipeLogger;
-import jp.co.smg.endosnipe.common.util.ResourceDataUtil;
-import jp.co.smg.endosnipe.communicator.entity.MeasurementConstants;
-import jp.co.smg.endosnipe.data.dao.MeasurementValueDao;
-import jp.co.smg.endosnipe.data.dto.MeasurementValueDto;
 
 /**
  * 指定した期間の計測情報を取得する処理クラスです。
@@ -69,13 +70,13 @@ public class TermMeasurementDataProcessor implements EventProcessor
     public static final Set<String>           ONLY_SQL_TYPES;
 
     /** SQLレスポンスのみ取り出す関数群 */
-    public static final Map<Integer, Integer> MEASUREMENT_TYPE_RELATION;
+    public static final Map<String, String> MEASUREMENT_TYPE_RELATION;
 
     /** 測定値の表示名 */
-    public static final Map<Integer, String>  MEASUREMENT_TYPE_DISPLAY_NAME;
+    public static final Map<String, String>  MEASUREMENT_TYPE_DISPLAY_NAME;
 
     /** 測定値の項目ID */
-    public static final Map<Integer, String>  MEASUREMENT_TYPE_ITEM_NAME;
+    public static final Map<String, String>  MEASUREMENT_TYPE_ITEM_NAME;
 
     /** SQLレスポンスかどうかを判断する文字列 */
     public static final String                SQL_TYPE_STRING = "jdbc";
@@ -83,58 +84,69 @@ public class TermMeasurementDataProcessor implements EventProcessor
     /** グラフの系列に値がない場合に設定する空文字 */
     private static final String               EMPTY_VALUE     = "";
 
+    /** SQLを除く項目名かどうかを判定する文字列。 */
+    private static final String ITEMNAME_FRAGMENT_EXCL_SQL = "/nosql/";
+
+    /** SQLのみにする項目名かどうかを判定する文字列。 */
+    private static final String ITEMNAME_FRAGMENT_ONLY_SQL = "/sql/";
+
+    /** 汎用JMX項目かどうかを判定する文字列。 */
+    private static final CharSequence ITEMNAME_FRAGMENT_JMX = "/jmx/";
+
     static
     {
         //SQLを排除する関数
         EXCLUSION_SQL_TYPES = new HashSet<String>();
-        EXCLUSION_SQL_TYPES.add(String.valueOf(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_EXCLUSION_SQL));
-        EXCLUSION_SQL_TYPES.add(String.valueOf(MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_EXCLUSION_SQL));
+        EXCLUSION_SQL_TYPES.add(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_EXCL_SQL);
+        EXCLUSION_SQL_TYPES.add(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_EXCL_SQL);
 
         //SQLのみを取得する関数
         ONLY_SQL_TYPES = new HashSet<String>();
-        ONLY_SQL_TYPES.add(String.valueOf(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_ONLY_SQL));
-        ONLY_SQL_TYPES.add(String.valueOf(MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_ONLY_SQL));
+        ONLY_SQL_TYPES.add(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_ONLY_SQL);
+        ONLY_SQL_TYPES.add(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_ONLY_SQL);
 
         //別の値を参照する必要がある測定項目を格納
-        MEASUREMENT_TYPE_RELATION = new HashMap<Integer, Integer>();
-        MEASUREMENT_TYPE_RELATION.put(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_EXCLUSION_SQL,
-                                      MeasurementConstants.TYPE_TURNAROUNDTIMECOUNT);
-        MEASUREMENT_TYPE_RELATION.put(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_ONLY_SQL,
-                                      MeasurementConstants.TYPE_TURNAROUNDTIMECOUNT);
-        MEASUREMENT_TYPE_RELATION.put(
-                                      MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_EXCLUSION_SQL,
-                                      MeasurementConstants.TYPE_TURNAROUNDTIME);
-        MEASUREMENT_TYPE_RELATION.put(MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_ONLY_SQL,
-                                      MeasurementConstants.TYPE_TURNAROUNDTIME);
-        MEASUREMENT_TYPE_RELATION.put(MeasurementConstants.TYPE_SYS_PHYSICALMEM_USED,
-                                      MeasurementConstants.TYPE_SYS_PHYSICALMEM_MAX);
+        MEASUREMENT_TYPE_RELATION = new HashMap<String, String>();
+        MEASUREMENT_TYPE_RELATION.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_EXCL_SQL,
+                                      Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT);
+        MEASUREMENT_TYPE_RELATION.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_ONLY_SQL,
+                                      Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT);
+        MEASUREMENT_TYPE_RELATION.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_EXCL_SQL,
+                                      Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE);
+        MEASUREMENT_TYPE_RELATION.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_ONLY_SQL,
+                                      Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE);
+        MEASUREMENT_TYPE_RELATION.put(Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_USED,
+                                      Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_MAX);
         //測定項目名称
-        MEASUREMENT_TYPE_DISPLAY_NAME = new HashMap<Integer, String>();
-        MEASUREMENT_TYPE_DISPLAY_NAME.put(
-                                          MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_EXCLUSION_SQL,
+        MEASUREMENT_TYPE_DISPLAY_NAME = new HashMap<String, String>();
+        
+        // * MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_EXCLUSION_SQL
+        MEASUREMENT_TYPE_DISPLAY_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_EXCL_SQL,
                                           "レスポンス回数(sqlを除く)");
-        MEASUREMENT_TYPE_DISPLAY_NAME.put(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_ONLY_SQL,
+        
+        // * MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_ONLY_SQL
+        MEASUREMENT_TYPE_DISPLAY_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_ONLY_SQL,
                                           "レスポンス回数(sqlのみ)");
-        MEASUREMENT_TYPE_DISPLAY_NAME.put(
-                                          MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_EXCLUSION_SQL,
+        // * MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_EXCLUSION_SQL
+        MEASUREMENT_TYPE_DISPLAY_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_EXCL_SQL,
                                           "レスポンス時間(sqlを除く)");
-        MEASUREMENT_TYPE_DISPLAY_NAME.put(MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_ONLY_SQL,
+        // * MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_ONLY_SQL
+        MEASUREMENT_TYPE_DISPLAY_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_ONLY_SQL,
                                           "レスポンス時間(sqlのみ)");
-        MEASUREMENT_TYPE_DISPLAY_NAME.put(MeasurementConstants.TYPE_SYS_PHYSICALMEM_USED,
+        // * MeasurementConstants.TYPE_SYS_PHYSICALMEM_USED
+        MEASUREMENT_TYPE_DISPLAY_NAME.put(Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_USED,
                                           "システム全体の使用メモリ");
 
-        MEASUREMENT_TYPE_ITEM_NAME = new HashMap<Integer, String>();
-        MEASUREMENT_TYPE_ITEM_NAME.put(
-                                       MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_EXCLUSION_SQL,
+        MEASUREMENT_TYPE_ITEM_NAME = new HashMap<String, String>();
+        MEASUREMENT_TYPE_ITEM_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_EXCL_SQL,
                                        "process.response.total.count.Exclusion.sql");
-        MEASUREMENT_TYPE_ITEM_NAME.put(MeasurementConstants.TYPE_PROC_RES_TOTAL_COUNT_ONLY_SQL,
+        MEASUREMENT_TYPE_ITEM_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TOTAL_COUNT_ONLY_SQL,
                                        "process.response.total.count.Only.sql");
-        MEASUREMENT_TYPE_ITEM_NAME.put(
-                                       MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_EXCLUSION_SQL,
+        MEASUREMENT_TYPE_ITEM_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_EXCL_SQL,
                                        "process.response.time.average.Exclusion.sql");
-        MEASUREMENT_TYPE_ITEM_NAME.put(MeasurementConstants.TYPE_PROC_RES_TIME_AVERAGE_ONLY_SQL,
+        MEASUREMENT_TYPE_ITEM_NAME.put(Constants.ITEMNAME_PROCESS_RESPONSE_TIME_AVERAGE_ONLY_SQL,
                                        "process.response.time.average.Only.sql");
-        MEASUREMENT_TYPE_ITEM_NAME.put(MeasurementConstants.TYPE_SYS_PHYSICALMEM_USED,
+        MEASUREMENT_TYPE_ITEM_NAME.put(Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_USED,
                                        "system.memory.physical.used");
     }
 
@@ -271,31 +283,31 @@ public class TermMeasurementDataProcessor implements EventProcessor
      * @param startTime 取得するデータの開始時間
      * @param endTime 取得するデータの終了時間
      * @param measurementType 測定項目
-     * @param itemName 項目名
+     * @param measurementItemName 項目名
      * @return 測定結果を格納したList
      */
     private List<MeasurementValueDto> getMeasurementValueList(String dbName, Timestamp startTime,
-            Timestamp endTime, Integer measurementType, String itemName)
+            Timestamp endTime, Integer measurementType, String measurementItemName)
     {
         try
         {
-            //別途データから値を作成するmeasurementTypeのために、typeを取得する。
-            Integer tmpMesurementType = MEASUREMENT_TYPE_RELATION.get(measurementType);
-            Integer trueMeasurementType = measurementType;
-            if (tmpMesurementType != null)
+            //別途データから値を作成するmeasurementItemNameを取得する。
+            String tmpMesurementItemName = MEASUREMENT_TYPE_RELATION.get(measurementItemName);
+            String trueMeasurementItemName = measurementItemName;
+            if (tmpMesurementItemName != null)
             {
-                measurementType = tmpMesurementType;
+                measurementItemName= tmpMesurementItemName;
             }
 
             List<MeasurementValueDto> measurementValueList = null;
-            if (measurementType != MeasurementConstants.TYPE_JMX)
+            if (measurementItemName.contains(ITEMNAME_FRAGMENT_JMX))
             {
                 measurementValueList =
-                                       MeasurementValueDao.selectByTermAndMeasurementType(
+                                       MeasurementValueDao.selectByTermAndMeasurementItemName(
                                                                                           dbName,
                                                                                           startTime,
                                                                                           endTime,
-                                                                                          measurementType);
+                                                                                          measurementItemName);
             }
             else
             {
@@ -303,26 +315,26 @@ public class TermMeasurementDataProcessor implements EventProcessor
                                        MeasurementValueDao.selectByTermAndJMXItemName(dbName,
                                                                                       startTime,
                                                                                       endTime,
-                                                                                      itemName);
+                                                                                      measurementItemName);
             }
 
             //measurementTypeを元に戻す。
-            if (tmpMesurementType != null)
+            if (tmpMesurementItemName != null)
             {
                 List<MeasurementValueDto> sysPhysicMemFreeDtoList = null;
-                if (trueMeasurementType == MeasurementConstants.TYPE_SYS_PHYSICALMEM_USED)
+                if (trueMeasurementItemName.contains(Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_USED))
                 {
                     //物理メモリ空き容量取得
                     sysPhysicMemFreeDtoList =
-                                              MeasurementValueDao.selectByTermAndMeasurementType(
+                                              MeasurementValueDao.selectByTermAndMeasurementItemName(
                                                                                                  dbName,
                                                                                                  startTime,
                                                                                                  endTime,
-                                                                                                 MeasurementConstants.TYPE_SYS_PHYSICALMEM_FREE);
+                                                                                                 Constants.ITEMNAME_SYSTEM_MEMORY_PHYSICAL_FREE);
                 }
                 //空きメモリ使用量から物理メモリ使用量を計算する。
                 measurementValueList =
-                                       EventUtil.confirmMeasurementValueList(trueMeasurementType,
+                                       EventUtil.confirmMeasurementValueList(trueMeasurementItemName,
                                                                              measurementValueList,
                                                                              sysPhysicMemFreeDtoList);
             }
@@ -447,71 +459,70 @@ public class TermMeasurementDataProcessor implements EventProcessor
     private void setDetailData(TermMeasurementData measurementData,
             List<MeasurementValueDto> measurementValueList, Map<Long, Integer> timestampMap)
     {
-        Map<MeasurementItemKey, TermMeasurementDetailData> measurementDetailMap =
-                                                                                  new HashMap<MeasurementItemKey, TermMeasurementDetailData>();
+        Map<String, TermMeasurementDetailData> measurementDetailMap =
+            new HashMap<String, TermMeasurementDetailData>();
+        
         for (MeasurementValueDto measurementValue : measurementValueList)
         {
             int measurementId = measurementValue.measurementItemId;
-            int measurementType = measurementValue.measurementType;
-            String measurmentItemName = measurementValue.measurementItemName;
+            String measurementItemName = measurementValue.measurementItemName;
             Date measuementTime = measurementValue.measurementTime;
-            if (measurmentItemName == null)
+            if (measurementItemName == null)
             {
-                measurmentItemName = "";
+                measurementItemName = "";
             }
 
-            //SQLを取り除くかどうかを判断し取捨選択する。
-            if (EXCLUSION_SQL_TYPES.contains(String.valueOf(measurementType)))
+            // SQLを取り除くかどうかを判断し取捨選択する。
+            if (EXCLUSION_SQL_TYPES.contains(measurementItemName))
             {
-                if (measurmentItemName.indexOf(SQL_TYPE_STRING) >= 0)
+                if (measurementItemName.indexOf(SQL_TYPE_STRING) >= 0)
                 {
                     continue;
                 }
             }
 
-            if (ONLY_SQL_TYPES.contains(String.valueOf(measurementType)))
+            if (ONLY_SQL_TYPES.contains(measurementItemName))
             {
-                if (measurmentItemName.indexOf(SQL_TYPE_STRING) == -1)
+                if (measurementItemName.indexOf(SQL_TYPE_STRING) == -1)
                 {
                     continue;
                 }
             }
 
-            //値を取得
-            MeasurementItemKey itemKey = new MeasurementItemKey(measurementId, measurementType);
-            TermMeasurementDetailData detailData = measurementDetailMap.get(itemKey);
+            // 値を取得
+            TermMeasurementDetailData detailData = measurementDetailMap.get(measurementItemName);
             if (detailData == null)
             {
 
                 detailData = new TermMeasurementDetailData();
-                detailData.measurement_type = measurementType;
                 detailData.measurement_id = measurementId;
                 detailData.measurement_values = new ArrayList<String>();
-                detailData.item_name = measurmentItemName;
+                detailData.item_name = measurementItemName;
 
                 measurementData.measurement_items.add(detailData);
-                measurementDetailMap.put(itemKey, detailData);
+                measurementDetailMap.put(measurementItemName, detailData);
             }
             String addValue = null;
-            if (measurementValue.measurementType == MeasurementConstants.TYPE_SYS_CPU_TOTAL_USAGE
-                    || measurementValue.measurementType == MeasurementConstants.TYPE_SYS_CPU_SYS_USAGE
-                    || measurementValue.measurementType == MeasurementConstants.TYPE_PROC_CPU_TOTAL_USAGE
-                    || measurementValue.measurementType == MeasurementConstants.TYPE_PROC_CPU_SYS_USAGE)
+
+            if (Constants.ITEMNAME_SYSTEM_CPU_TOTAL_USAGE.equals(measurementValue.measurementItemName)
+                || Constants.ITEMNAME_SYSTEM_CPU_SYSTEM_USAGE.equals(measurementValue.measurementItemName)
+                || Constants.ITEMNAME_PROCESS_CPU_TOTAL_USAGE.equals(measurementValue.measurementItemName)
+                || Constants.ITEMNAME_PROCESS_CPU_SYSTEM_USAGE.equals(measurementValue.measurementItemName))
             {
                 addValue =
-                           String.valueOf(measurementValue.value.doubleValue()
+                           String.valueOf(Double.valueOf(measurementValue.value).doubleValue()
                                    / ResourceDataUtil.PERCENTAGE_DATA_MAGNIFICATION);
             }
             // jmxにおける処理。
-            else if (measurementValue.measurementType > 255) 
+            else if (measurementItemName.contains(ITEMNAME_FRAGMENT_JMX)) 
             {
                 // HitRatioを検出する。
                 boolean isRatio = false;
                 for (String ratioName : JMXManager.JMX_RATIO_ITEMNAME_ARRAY) {
-                    if (measurmentItemName == null) {
+                    if (measurementItemName == null) {
                         break;
                     }
-                    if (!measurmentItemName.contains(ratioName)) {
+                    if (!measurementItemName.contains(ratioName)) {
                         continue;
                     }
                     isRatio = true;
@@ -520,7 +531,7 @@ public class TermMeasurementDataProcessor implements EventProcessor
                 
                 if (isRatio) {
                     addValue =
-                        String.valueOf(measurementValue.value.doubleValue()
+                        String.valueOf(Double.valueOf(measurementValue.value).doubleValue()
                                 / ResourceDataUtil.PERCENTAGE_DATA_MAGNIFICATION);
                 } else {
                     addValue = String.valueOf(measurementValue.value);

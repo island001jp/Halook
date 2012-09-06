@@ -38,8 +38,6 @@ wgp.MapStateElementView = Backbone.View.extend({
     	var color = this.getStateColor();
     	this.model.set({"attributes" : {fill:color}}, {silent:true});
     	this.element = new ellipse(this.model.attributes, this._paper);
-    	//this.element = new textArea(this.model.attributes, this._paper);
-    	//this.element = new rectangle(this.model.attributes, this._paper);
     },
     update:function(model){
         var instance = this;
