@@ -234,13 +234,23 @@ var HbaseView = wgp.AbstractView.extend({
 		return data;
 	},
 	_getAnnotationElement: function(timestamp, eventString, series){
+		var instance = this;
 		var annotationElement = {
 				series		: series,
 				x			: timestamp,
 				shortText	: null,
 				text		: null,
 				tickHeight	: this._getAnnotationElementPosition(),
-				cssClass	: null
+				cssClass	: null,
+				mouseOverHandler : function(ann, point, dg, event){
+					console.log('------------');
+					console.log(ann);
+					console.log(ann.x);
+					console.log(point);
+					console.log(dg);
+					console.log(event);
+					instance._hilightedActionForAnnotation(ann.x);
+				}
 		};
 		
 		// split event String 
@@ -336,9 +346,10 @@ var HbaseView = wgp.AbstractView.extend({
 			zIndex		: '9999'
 		});
 		$('.' + className).append(
-				'<p class="_tmp">' + (new Date(x)) + '</p>' +
 				'<p class="_tmp"><strong>' + 
-				$('.' + className).attr("title") + '</strong></p>');
+				$('.' + className).attr("title") + '</strong></p>' +
+				'<p class="_tmp">' + (new Date(x)) + '</p>'
+				);
 		
 		this._classNameOfPrevious = className;
 	},
