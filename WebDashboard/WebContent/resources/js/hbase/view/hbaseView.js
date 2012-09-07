@@ -106,15 +106,15 @@ var HbaseView = wgp.AbstractView.extend({
         
 		console.log('initialize (graph)');
 	},
+	/*
 	onAdd : function(element){
 		console.log('call onAdd (graph)');
 		
 		var dataArray = [];
-		/*
-		if(this.collection.length > graphMaxNumber){
-			this.collection.shift(wgp.constants.BACKBONE_EVENT.SILENT);
-		}
-		*/
+		//if(this.collection.length > graphMaxNumber){
+		//	this.collection.shift(wgp.constants.BACKBONE_EVENT.SILENT);
+		//}
+		
 		_.each(this.collection.models, function(model,index){
 			
 			var modelData = model.get("data");
@@ -136,7 +136,7 @@ var HbaseView = wgp.AbstractView.extend({
 			this.entity.updateOptions({file: dataArray});
 		};
 		
-	},
+	},*/
 	onChange : function(element){
 		console.log('called changeModel');
 	},

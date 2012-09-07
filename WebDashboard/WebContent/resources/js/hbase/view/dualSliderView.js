@@ -9,7 +9,7 @@ halook.common.dualslider.scaleUnit		= 60 * 60 * 1000; //millisecond
 halook.common.dualslider.groupString	= 'days';
 halook.common.dualslider.groupUnitNum	= 24;
 halook.common.dualslider.groupMaxNum	= 7;
-halook.common.dualslider.groupDefaultNum= 2;
+halook.common.dualslider.groupDefaultNum= 3;
 halook.common.dualslider.idFrom 		= 'dualSliderFromValue';
 halook.common.dualslider.idTo 			= 'dualSliderToValue';
 
@@ -31,153 +31,69 @@ var DualSliderView = wgp.AbstractView.extend({
 		this.fromScale		= this.groupUnitNum * this.groupNum - 1;
 		this.toScale		= this.groupUnitNum * this.groupNum;
 		
-		// add slider
-		//$(this.viewId).append('<div id="scaleArea"></div>');
+		// get html of slider
 		var htmlString = this._getScaleHtml(this.scaleUnitString, 
 										this.groupUnitNum * this.groupNum, 
 										this.groupString, this.groupUnitNum);
 		$(this.viewId).append(htmlString);
-		this._selectSliderScale(this.idFrom, this.fromScale);
-		this._selectSliderScale(this.idTo, this.toScale);
+		
+		// select scale
+		this._selectSelector(this.idFrom, this.fromScale);
+		this._selectSelector(this.idTo, this.toScale);
+		
+		// make slider
 		this.sliderComponent = 
 			$(this.viewId + ' select#' + this.idFrom + ',' +
 			  this.viewId + ' select#' + this.idTo).selectToUISlider();
+		this._setScaleCss();
 		
-		// adjust slider visual
-		$(this.viewId + ' form#scaleArea').css({
-			width	: '600px',
-			float	: 'left'
-		});
-		$(this.viewId + ' fieldset').css({
-			height	: '50px',
-			padding	: '60px 40px 0px 20px',
-			border	: '0px #dcdcdc solid'
-		});
-		
-		// adjust label on slider
-		$(this.viewId + ' span.ui-slider-label-show').css({
-			display		: "block",
-			fontSize	: "14px",
-			textAlign	: "left",
-			width		: "100px",
-			marginLeft	: "2px"//,
-			//border: "1px black solid"
-		});
-		
-		// adjust label of group on slider
-		$(this.viewId + ' dl.ui-slider-scale dt').css({
-			top			: '-70px'
-		});
-		$(this.viewId + ' dl.ui-slider-scale dt span').css({
-			color		: 'red',
-			fontSize	: '14px'
-		});
-		
-		//hide pull down menu
+		// hide pull down menu
 		$(this.viewId + ' select#' + this.idTo).hide();
 		$(this.viewId + ' select#' + this.idFrom).hide();
 		
-		
-		
-		// group
+		// make group selector
 		var htmlString = this._getGroupHtml(this.groupMaxNum, this.groupString);
 		$(this.viewId).append(htmlString + '<hr class="clearFloat">');
+		this._setGroupCss();
+		this._selectSelector('groupArea', this.groupNum - 1);
+		
 		console.log('initialize (dual slider)');
-
-		$(this.viewId + ' form#groupArea').css({
-			width	: '100px',
-			float	: 'right'
-		});
-		$(this.viewId + ' .clearFloat').css({
-			diplay	: 'block',
-			border	: '0px transparent solid',
-			clear	: 'both'
-		});
 		
-		
-		
-		
-		
-		
-		
-		
+		this._setGroupSelectorMovedEvent();
+		/*
 		var instance = this;
 		$(this.viewId + ' #groupArea select').change(function(){
-			alert("aa");
-			console.log($("#groupArea select option:selected").attr('value'));
-			console.log($(this).val());
+			// delete old scale
 			$('form#scaleArea').remove();
 			
-			var tmp1 = instance.groupNum;
+			// get new html of scale
+			var oldGroupNum = instance.groupNum;
 			instance.groupNum = $(this).val();
 			var htmlString = instance._getScaleHtml(instance.scaleUnitString, 
 					instance.groupUnitNum * instance.groupNum, 
 					instance.groupString, instance.groupUnitNum);
 			$(instance.viewId).prepend(htmlString);
 			
+			// select scale
+			instance.fromScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.fromScale)
+			instance.toScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.toScale)
+			instance._selectSelector(instance.idFrom, instance.fromScale);
+			instance._selectSelector(instance.idTo, instance.toScale);
 			
-			instance.fromScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * tmp1 - instance.fromScale)
-			instance.toScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * tmp1 - instance.toScale)
-			
-			
-			instance._selectSliderScale(instance.idFrom, instance.fromScale);
-			instance._selectSliderScale(instance.idTo, instance.toScale);
-			
-			//instance
+			// make slider
 			instance.sliderComponent = 
 				$(instance.viewId + ' select#' + instance.idFrom + ',' +
 						instance.viewId + ' select#' + instance.idTo).selectToUISlider();
-
+			instance._setScaleCss();
 			
-			// adjust slider visual
-			$(instance.viewId + ' form#scaleArea').css({
-				width	: '600px',
-				float	: 'left'
-			});
-			$(instance.viewId + ' fieldset').css({
-				height	: '80px',
-				padding	: '60px 40px 0px 20px',
-				border	: '1px #dcdcdc solid'
-			});
-			
-			// adjust label on slider
-			$(instance.viewId + ' span.ui-slider-label-show').css({
-				display		: "block",
-				fontSize	: "14px",
-				textAlign	: "left",
-				width		: "100px",
-				marginLeft	: "2px"//,
-				//border: "1px black solid"
-			});
-			
-			// adjust label of group on slider
-			$(instance.viewId + ' dl.ui-slider-scale dt').css({
-				top			: '-70px'
-			});
-			$(instance.viewId + ' dl.ui-slider-scale dt span').css({
-				color		: 'red',
-				fontSize	: '14px'
-			});
-			
-			
-			console.log("aaa");
-			console.log($(instance.viewId + ' select#' + instance.idTo));
-			console.log(instance.idFrom);
-			console.log(instance.idTo);
-			console.log(instance.fromScale);
-			console.log(instance.toScale);
-			
-			
-			//$(instance.viewId + ' select#' + instance.idFrom)
-
-			
+			// hide pull down menu
 			$(instance.viewId + ' select#' + instance.idTo).hide();
 			$(instance.viewId + ' select#' + instance.idFrom).hide();
-			instance._setScaleMovedEvent();
 			
-			
+			// set event on scale
+			instance.setScaleMovedEvent(instance.scaleMovedEventFunc);
 		});
-		
+		*/
 		
 	},
 	render : function(){
@@ -221,11 +137,41 @@ var DualSliderView = wgp.AbstractView.extend({
 		
 		return htmlStr;
 	},
+	_setScaleCss : function(){
+		// adjust slider visual
+		$(this.viewId + ' form#scaleArea').css({
+			width	: '600px',
+			float	: 'left'
+		});
+		$(this.viewId + ' fieldset').css({
+			height	: '50px',
+			padding	: '60px 40px 0px 20px',
+			border	: '0px #dcdcdc solid'
+		});
+		
+		// adjust label on slider
+		$(this.viewId + ' span.ui-slider-label-show').css({
+			display		: "block",
+			fontSize	: "14px",
+			textAlign	: "left",
+			width		: "100px",
+			marginLeft	: "2px"//,
+			//border: "1px black solid"
+		});
+		
+		// adjust label of group on slider
+		$(this.viewId + ' dl.ui-slider-scale dt').css({
+			top			: '-75px'
+		});
+		$(this.viewId + ' dl.ui-slider-scale dt span').css({
+			color		: 'red',
+			fontSize	: '14px'
+		});
+	},
 	_getGroupHtml : function(groupMaxNum, groupString){
 		var htmlStr = '';
 		htmlStr += '<form id="groupArea">\n';
 		htmlStr += '  <select>\n';
-		
 		for(var groupNum=1; groupNum<=groupMaxNum; groupNum++){
 			htmlStr += '    <option value="' + groupNum + '">' + 
 						groupNum + ' ' + groupString + ' ago' + '</option>\n';
@@ -235,7 +181,19 @@ var DualSliderView = wgp.AbstractView.extend({
 		
 		return htmlStr;
 	},
-	_selectSliderScale : function(idName, value){
+	_setGroupCss : function(){
+		$(this.viewId + ' form#groupArea').css({
+			width	: '100px',
+			margin	: '60px 0px 0px 10px',
+			float	: 'left'
+		});
+		$(this.viewId + ' .clearFloat').css({
+			diplay	: 'block',
+			border	: '0px transparent solid',
+			clear	: 'both'
+		});
+	},
+	_selectSelector : function(idName, value){
 		$('#' + idName + ' option:eq(' + value + ')').attr(
 														"selected","selected");
 	},
@@ -251,6 +209,41 @@ var DualSliderView = wgp.AbstractView.extend({
 																this.scaleUnit;
 		return [fromMillisecond, toMillisecond];
 	},
+	_setGroupSelectorMovedEvent : function(){
+		var instance = this;
+		$(this.viewId + ' #groupArea select').change(function(){
+			// delete old scale
+			$('form#scaleArea').remove();
+			
+			// get new html of scale
+			var oldGroupNum = instance.groupNum;
+			instance.groupNum = $(this).val();
+			var htmlString = instance._getScaleHtml(instance.scaleUnitString, 
+					instance.groupUnitNum * instance.groupNum, 
+					instance.groupString, instance.groupUnitNum);
+			$(instance.viewId).prepend(htmlString);
+			
+			// select scale
+			instance.fromScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.fromScale)
+			instance.toScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.toScale)
+			instance._selectSelector(instance.idFrom, instance.fromScale);
+			instance._selectSelector(instance.idTo, instance.toScale);
+			
+			// make slider
+			instance.sliderComponent = 
+				$(instance.viewId + ' select#' + instance.idFrom + ',' +
+						instance.viewId + ' select#' + instance.idTo).selectToUISlider();
+			instance._setScaleCss();
+			
+			// hide pull down menu
+			$(instance.viewId + ' select#' + instance.idTo).hide();
+			$(instance.viewId + ' select#' + instance.idFrom).hide();
+			
+			// set event on scale
+			instance.setScaleMovedEvent(instance.scaleMovedEventFunc);
+		});
+	},
+	/*
 	_setScaleMovedEvent : function(){
 		var instance = this;
 		this.sliderComponent.bind("slidechange", function(event, ui) {
@@ -261,7 +254,7 @@ var DualSliderView = wgp.AbstractView.extend({
 			var toMillisecond = fromtoMillisecond[1];
 			instance.scaleMovedEventFunc(fromMillisecond, toMillisecond);
 		});
-	},
+	},*/
 	setScaleMovedEvent : function(func){
 		var instance = this;
 		this.scaleMovedEventFunc = func;

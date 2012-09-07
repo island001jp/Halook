@@ -42,36 +42,8 @@ var HbaseParentView = wgp.AbstractView.extend({
 		var idDict 		= halook.hbase.parent.id;
 		var cssDict		= halook.hbase.parent.css;
 		
-		// css
-		$(this.viewId).css({
-			//background		: "-moz-linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%)",
-			//background		: "#dcdcdc"
-		});
-		
-		
 		// logo area 
-		$(this.viewId).append('<div id="logo"></div>');
-		$('#logo').append('<h1>Hbase Region Number, Event Occurrence</h1>');
-		$('#logo').append('<img src="/WebDashboard/resources/images/halook_120x30.png">');
-		$('#logo'). css({
-			overflow	: 'auto',
-			margin		: '10px 0px 0px 10px',
-			border		: '1px #dcdcdc solid',
-			background	: "-moz-linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%)",
-		});
-		$('#logo h1').css({
-			fontSize	: '25px',
-			width	: '600px',
-			margin	: '10px 0px 10px 20px',
-			float	: 'left'
-		});
-		$('#logo img').css({
-			width	: '120px',
-			height	: '30px',
-			margin	: '5px 10px 10px 0px',
-			float	: 'right'
-		});
-		
+		this.makeLogoArea();
 		
 		// dual slider area (add div and css, and make slider)
 		$(this.viewId).append('<div id="'+ idDict.dualSliderArea +'"></div>');
@@ -132,6 +104,31 @@ var HbaseParentView = wgp.AbstractView.extend({
 		// ツリー移動時に呼ばれる
 		console.log('called destroy (parent)');
 		this.stopRegisterCollectionEvent();
+	},
+	makeLogoArea: function() {
+		idName = 'logo';
+		$(this.viewId).append('<div id="'+ idName +'"></div>');
+		$('#' + idName).append('<h1>Hbase Region Number, Event Occurrence</h1>');
+		$('#' + idName).append('<img src="/WebDashboard/resources/images/halook_120x30.png">');
+		$('#' + idName). css({
+			overflow	: 'auto',
+			margin		: '10px 0px 0px 10px',
+			border		: '1px #dcdcdc solid',
+			//background	: "-moz-linear-gradient(-45deg, rgba(76,76,76,1) 0%, rgba(89,89,89,1) 12%, rgba(102,102,102,1) 25%, rgba(71,71,71,1) 39%, rgba(44,44,44,1) 50%, rgba(17,17,17,1) 60%, rgba(43,43,43,1) 76%, rgba(28,28,28,1) 91%, rgba(19,19,19,1) 100%)"
+			background	: "-moz-linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%)",
+		});
+		$('#' + idName + ' h1').css({
+			fontSize	: '25px',
+			width	: '600px',
+			margin	: '10px 0px 10px 20px',
+			float	: 'left'
+		});
+		$('#' + idName + ' img').css({
+			width	: '120px',
+			height	: '30px',
+			margin	: '5px 10px 10px 0px',
+			float	: 'right'
+		});
 	}
 });
 
