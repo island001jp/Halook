@@ -48,6 +48,31 @@ var HbaseParentView = wgp.AbstractView.extend({
 			//background		: "#dcdcdc"
 		});
 		
+		
+		// logo area 
+		$(this.viewId).append('<div id="logo"></div>');
+		$('#logo').append('<h1>Hbase Region Number, Event Occurrence</h1>');
+		$('#logo').append('<img src="/WebDashboard/resources/images/halook_120x30.png">');
+		$('#logo'). css({
+			overflow	: 'auto',
+			margin		: '10px 0px 0px 10px',
+			border		: '1px #dcdcdc solid',
+			background	: "-moz-linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%)",
+		});
+		$('#logo h1').css({
+			fontSize	: '25px',
+			width	: '600px',
+			margin	: '10px 0px 10px 20px',
+			float	: 'left'
+		});
+		$('#logo img').css({
+			width	: '120px',
+			height	: '30px',
+			margin	: '5px 10px 10px 0px',
+			float	: 'right'
+		});
+		
+		
 		// dual slider area (add div and css, and make slider)
 		$(this.viewId).append('<div id="'+ idDict.dualSliderArea +'"></div>');
 		$('#' + idDict.dualSliderArea).css(cssDict.dualSliderArea);

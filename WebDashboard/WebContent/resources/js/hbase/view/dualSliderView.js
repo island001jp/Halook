@@ -49,9 +49,9 @@ var DualSliderView = wgp.AbstractView.extend({
 			float	: 'left'
 		});
 		$(this.viewId + ' fieldset').css({
-			height	: '80px',
+			height	: '50px',
 			padding	: '60px 40px 0px 20px',
-			border	: '1px #dcdcdc solid'
+			border	: '0px #dcdcdc solid'
 		});
 		
 		// adjust label on slider

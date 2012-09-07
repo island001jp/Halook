@@ -20,7 +20,7 @@ halook.hbase.parent = {
 			width		: "180px",
 			height		: "350px",
 			border		: "1px #dcdcdc solid",
-			margin		: "30px 20px 0px 0px"
+			margin		: "10px 20px 0px 0px"
 		},
 		legendArea : {
 			height	: "40px",
@@ -32,12 +32,12 @@ halook.hbase.parent = {
 		},
 		dualSliderArea : {
 				//width	: "auto",
-				margin	: "50px 0px 0px 60px"
+				margin	: "20px 0px 0px 60px"
 		},
 		graphArea : {
 				float	: "left",
 				width	: "650px",
-				margin	: "30px 0px 0px 10px"
+				margin	: "10px 0px 0px 10px"
 		}
 	}
 };
