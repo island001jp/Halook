@@ -59,42 +59,8 @@ var DualSliderView = wgp.AbstractView.extend({
 		
 		console.log('initialize (dual slider)');
 		
+		// group selector event
 		this._setGroupSelectorMovedEvent();
-		/*
-		var instance = this;
-		$(this.viewId + ' #groupArea select').change(function(){
-			// delete old scale
-			$('form#scaleArea').remove();
-			
-			// get new html of scale
-			var oldGroupNum = instance.groupNum;
-			instance.groupNum = $(this).val();
-			var htmlString = instance._getScaleHtml(instance.scaleUnitString, 
-					instance.groupUnitNum * instance.groupNum, 
-					instance.groupString, instance.groupUnitNum);
-			$(instance.viewId).prepend(htmlString);
-			
-			// select scale
-			instance.fromScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.fromScale)
-			instance.toScale = instance.groupUnitNum * instance.groupNum - (instance.groupUnitNum * oldGroupNum - instance.toScale)
-			instance._selectSelector(instance.idFrom, instance.fromScale);
-			instance._selectSelector(instance.idTo, instance.toScale);
-			
-			// make slider
-			instance.sliderComponent = 
-				$(instance.viewId + ' select#' + instance.idFrom + ',' +
-						instance.viewId + ' select#' + instance.idTo).selectToUISlider();
-			instance._setScaleCss();
-			
-			// hide pull down menu
-			$(instance.viewId + ' select#' + instance.idTo).hide();
-			$(instance.viewId + ' select#' + instance.idFrom).hide();
-			
-			// set event on scale
-			instance.setScaleMovedEvent(instance.scaleMovedEventFunc);
-		});
-		*/
-		
 	},
 	render : function(){
 		console.log('call render (dual slider)');
@@ -197,18 +163,6 @@ var DualSliderView = wgp.AbstractView.extend({
 		$('#' + idName + ' option:eq(' + value + ')').attr(
 														"selected","selected");
 	},
-	_getFromToAsArray : function(values){
-		// values	: .ui-slider values 
-		// 	  		  Ex: [4, 6]
-		// return	: [fromMillisecond, toMillisecond]
-		//			  the time which means how long ago from now
-		
-		var fromMillisecond = (this.groupUnitNum * this.groupNum - values[0]) * 
-																this.scaleUnit;
-		var toMillisecond = (this.groupUnitNum * this.groupNum - values[1]) * 
-																this.scaleUnit;
-		return [fromMillisecond, toMillisecond];
-	},
 	_setGroupSelectorMovedEvent : function(){
 		var instance = this;
 		$(this.viewId + ' #groupArea select').change(function(){
@@ -243,18 +197,18 @@ var DualSliderView = wgp.AbstractView.extend({
 			instance.setScaleMovedEvent(instance.scaleMovedEventFunc);
 		});
 	},
-	/*
-	_setScaleMovedEvent : function(){
-		var instance = this;
-		this.sliderComponent.bind("slidechange", function(event, ui) {
-			instance.fromScale = ui.values[0];
-			instance.toScale = ui.values[1];
-			var fromtoMillisecond = instance._getFromToAsArray(ui.values);
-			var fromMillisecond = fromtoMillisecond[0];
-			var toMillisecond = fromtoMillisecond[1];
-			instance.scaleMovedEventFunc(fromMillisecond, toMillisecond);
-		});
-	},*/
+	_getFromToAsArray : function(values){
+		// values	: .ui-slider values 
+		// 	  		  Ex: [4, 6]
+		// return	: [fromMillisecond, toMillisecond]
+		//			  the time which means how long ago from now
+		
+		var fromMillisecond = (this.groupUnitNum * this.groupNum - values[0]) * 
+																this.scaleUnit;
+		var toMillisecond = (this.groupUnitNum * this.groupNum - values[1]) * 
+																this.scaleUnit;
+		return [fromMillisecond, toMillisecond];
+	},
 	setScaleMovedEvent : function(func){
 		var instance = this;
 		this.scaleMovedEventFunc = func;
